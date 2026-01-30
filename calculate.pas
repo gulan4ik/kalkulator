@@ -1,10 +1,10 @@
-unit calculate;
+﻿unit calculate;
 
 interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, System.Generics.Collections;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, System.Generics.Collections, Math;
 
 type
   TKalkulator = class(TForm)
@@ -24,9 +24,12 @@ type
     Minus: TButton;
     Multi: TButton;
     Division: TButton;
-    Button1: TButton;
-    Button2: TButton;
-    Button3: TButton;
+    dot: TButton;
+    powerr: TButton;
+    rnd: TButton;
+    Button4: TButton;
+    Button5: TButton;
+    Button6: TButton;
     procedure oneClick(Sender: TObject);
     procedure twoClick(Sender: TObject);
     procedure threeClick(Sender: TObject);
@@ -43,6 +46,9 @@ type
     procedure MultiClick(Sender: TObject);
     procedure DivisionClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure dotClick(Sender: TObject);
+    procedure rndClick(Sender: TObject);
+    procedure powerrClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -54,6 +60,13 @@ var
   Answer: Char;
   a,b,c: Double;
   text : String;
+  currentText: string;
+  decimalSeparatorPos: Integer;
+  pendingOperation: string;  // текущая операция (для стека)
+  powerLeftValue: Double;         // левое число (до нажатия ^)
+  powerRightValue: Double;        // правое число (после ^)
+  powerHasLeftValue: Boolean;
+  result: Double;
 
 implementation
 
@@ -67,6 +80,33 @@ Edit1.Text := Edit1.Text + '/';
 text := '';
 end;
 
+procedure TKalkulator.dotClick(Sender: TObject);
+begin
+begin
+  currentText := text;
+
+  decimalSeparatorPos := Pos(FormatSettings.DecimalSeparator, currentText);
+
+  if decimalSeparatorPos = 0 then
+  begin
+    if currentText = '' then
+    begin
+      text := '0' + FormatSettings.DecimalSeparator;
+      Edit1.Text := Edit1.Text + '0' + FormatSettings.DecimalSeparator;
+    end
+    else
+    begin
+      text := text + FormatSettings.DecimalSeparator;
+      Edit1.Text := Edit1.Text + FormatSettings.DecimalSeparator;
+    end;
+  end
+  else
+  begin
+
+  end;
+end;
+end;
+
 procedure TKalkulator.eightClick(Sender: TObject);
 begin
 Edit1.Text:=Edit1.Text+'9';
@@ -75,14 +115,47 @@ end;
 
 procedure TKalkulator.EqualsClick(Sender: TObject);
 begin
-b:=StrToFloat(text);
-case Answer of
-'+': c:=a+b;
-'-': c:=a-b;
-'*': c:=a*b;
-'/': c:=a/b;
-end;
-Edit1.Text := FloatToStr(c);
+try
+    if powerHasLeftValue and (pendingOperation = '^') then
+    begin
+      powerRightValue := StrToFloat(text);
+
+      if (powerLeftValue < 0) and (Frac(powerRightValue) <> 0) then
+      begin
+        ShowMessage('negative number');
+        Exit;
+      end;
+
+      result := Power(powerLeftValue, powerRightValue);
+      Edit1.Text := FloatToStr(result);
+      text := FloatToStr(result);
+    end
+    else
+    begin
+      b := StrToFloat(text);
+      case Answer of
+        '+': result := a + b;
+        '-': result := a - b;
+        '*': result := a * b;
+        '/':
+          if b = 0 then
+            ShowMessage('Division on zero')
+          else
+            result := a / b;
+      else
+        ShowMessage('Unknown operation');
+        Exit;
+      end;
+      Edit1.Text := FloatToStr(result);
+      text := FloatToStr(result);
+    end;
+
+    powerHasLeftValue := False;
+    pendingOperation := '';
+  except
+    on E: Exception do
+      ShowMessage('Error: ' + E.Message);
+  end;
 end;
 
 procedure TKalkulator.fiveClick(Sender: TObject);
@@ -136,6 +209,33 @@ Answer := '+';
 a:=StrToFloat(text);
 Edit1.Text := Edit1.Text + '+';
 text := '';
+end;
+
+procedure TKalkulator.powerrClick(Sender: TObject);
+begin
+if not powerHasLeftValue then
+  begin
+    try
+      powerLeftValue := StrToFloat(text);
+      powerHasLeftValue := True;
+      pendingOperation := '^';
+      Edit1.Text := Edit1.Text + '^';
+      text := '';
+    except
+      ShowMessage('incorrect number');
+      text := '';
+    end;
+  end
+  else
+  begin
+    ShowMessage('operation started');
+  end;
+end;
+
+procedure TKalkulator.rndClick(Sender: TObject);
+begin
+Edit1.Text:=Edit1.Text + IntToStr(random(1000));
+text := text + IntToStr(random(1000));
 end;
 
 procedure TKalkulator.sevenClick(Sender: TObject);

@@ -2,8 +2,8 @@ object Kalkulator: TKalkulator
   Left = 0
   Top = 0
   Caption = 'Kalkulator'
-  ClientHeight = 290
-  ClientWidth = 437
+  ClientHeight = 287
+  ClientWidth = 573
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -154,28 +154,55 @@ object Kalkulator: TKalkulator
     TabOrder = 15
     OnClick = DivisionClick
   end
-  object Button1: TButton
+  object dot: TButton
     Left = 324
     Top = 176
     Width = 41
     Height = 41
-    Caption = 'Button1'
+    Caption = ','
     TabOrder = 16
+    OnClick = dotClick
   end
-  object Button2: TButton
+  object powerr: TButton
     Left = 324
     Top = 48
     Width = 41
     Height = 41
-    Caption = 'Button1'
+    Caption = 'x^y'
     TabOrder = 17
+    OnClick = powerrClick
   end
-  object Button3: TButton
+  object rnd: TButton
     Left = 324
     Top = 112
     Width = 41
     Height = 41
-    Caption = 'Button1'
+    Caption = 'Rnd'
     TabOrder = 18
+    OnClick = rndClick
+  end
+  object Button4: TButton
+    Left = 388
+    Top = 48
+    Width = 41
+    Height = 41
+    Caption = 'Button1'
+    TabOrder = 19
+  end
+  object Button5: TButton
+    Left = 388
+    Top = 112
+    Width = 41
+    Height = 41
+    Caption = 'Button1'
+    TabOrder = 20
+  end
+  object Button6: TButton
+    Left = 388
+    Top = 176
+    Width = 41
+    Height = 41
+    Caption = 'Button1'
+    TabOrder = 21
   end
 end
