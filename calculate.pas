@@ -27,8 +27,8 @@ type
     dot: TButton;
     powerr: TButton;
     rnd: TButton;
-    Button4: TButton;
-    Button5: TButton;
+    sqrtButton: TButton;
+    logarithmic: TButton;
     Button6: TButton;
     procedure oneClick(Sender: TObject);
     procedure twoClick(Sender: TObject);
@@ -49,6 +49,8 @@ type
     procedure dotClick(Sender: TObject);
     procedure rndClick(Sender: TObject);
     procedure powerrClick(Sender: TObject);
+    procedure sqrtButtonClick(Sender: TObject);
+    procedure logarithmicClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -71,6 +73,14 @@ var
 implementation
 
 {$R *.dfm}
+
+procedure TKalkulator.logarithmicClick(Sender: TObject);
+begin
+Answer := 'l';
+a:=StrToFloat(text);
+Edit1.Text := Edit1.Text + 'log';
+text := '';
+end;
 
 procedure TKalkulator.DivisionClick(Sender: TObject);
 begin
@@ -130,6 +140,20 @@ try
       Edit1.Text := FloatToStr(result);
       text := FloatToStr(result);
     end
+    else if powerHasLeftValue and (pendingOperation = '√') then
+    begin
+      powerRightValue := StrToFloat(text);
+
+      if (powerLeftValue < 0) and (Frac(powerRightValue) <> 0) then
+      begin
+        ShowMessage('negative number');
+        Exit;
+      end;
+
+      result := Power(powerLeftValue, 1/powerRightValue);
+      Edit1.Text := FloatToStr(result);
+      text := FloatToStr(result);
+    end
     else
     begin
       b := StrToFloat(text);
@@ -137,6 +161,7 @@ try
         '+': result := a + b;
         '-': result := a - b;
         '*': result := a * b;
+        'l': result := LogN(b, a);
         '/':
           if b = 0 then
             ShowMessage('Division on zero')
@@ -248,6 +273,27 @@ procedure TKalkulator.sixClick(Sender: TObject);
 begin
 Edit1.Text:=Edit1.Text+'6';
 text := text + '6';
+end;
+
+procedure TKalkulator.sqrtButtonClick(Sender: TObject);
+begin
+if not powerHasLeftValue then
+  begin
+    try
+      powerLeftValue := StrToFloat(text);
+      powerHasLeftValue := True;
+      pendingOperation := '√';
+      Edit1.Text := Edit1.Text + '√';
+      text := '';
+    except
+      ShowMessage('incorrect number');
+      text := '';
+    end;
+  end
+  else
+  begin
+    ShowMessage('operation started');
+  end;
 end;
 
 procedure TKalkulator.threeClick(Sender: TObject);

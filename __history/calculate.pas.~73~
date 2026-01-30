@@ -1,4 +1,4 @@
-unit calculate;
+п»їunit calculate;
 
 interface
 
@@ -25,9 +25,9 @@ type
     Multi: TButton;
     Division: TButton;
     dot: TButton;
-    power: TButton;
+    powerr: TButton;
     rnd: TButton;
-    Button4: TButton;
+    sqrtButton: TButton;
     Button5: TButton;
     Button6: TButton;
     procedure oneClick(Sender: TObject);
@@ -48,7 +48,8 @@ type
     procedure FormCreate(Sender: TObject);
     procedure dotClick(Sender: TObject);
     procedure rndClick(Sender: TObject);
-    procedure powerClick(Sender: TObject);
+    procedure powerrClick(Sender: TObject);
+    procedure sqrtButtonClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -62,10 +63,11 @@ var
   text : String;
   currentText: string;
   decimalSeparatorPos: Integer;
-  pendingOperation: string;  // текущая операция (для стека)
-  powerLeftValue: Double;         // левое число (до нажатия ^)
-  powerRightValue: Double;        // правое число (после ^)
+  pendingOperation: string;  // С‚РµРєСѓС‰Р°СЏ РѕРїРµСЂР°С†РёСЏ (РґР»СЏ СЃС‚РµРєР°)
+  powerLeftValue: Double;         // Р»РµРІРѕРµ С‡РёСЃР»Рѕ (РґРѕ РЅР°Р¶Р°С‚РёСЏ ^)
+  powerRightValue: Double;        // РїСЂР°РІРѕРµ С‡РёСЃР»Рѕ (РїРѕСЃР»Рµ ^)
   powerHasLeftValue: Boolean;
+  result: Double;
 
 implementation
 
@@ -114,14 +116,61 @@ end;
 
 procedure TKalkulator.EqualsClick(Sender: TObject);
 begin
-b:=StrToFloat(text);
-case Answer of
-'+': c:=a+b;
-'-': c:=a-b;
-'*': c:=a*b;
-'/': c:=a/b;
-end;
-Edit1.Text := FloatToStr(c);
+try
+    if powerHasLeftValue and (pendingOperation = '^') then
+    begin
+      powerRightValue := StrToFloat(text);
+
+      if (powerLeftValue < 0) and (Frac(powerRightValue) <> 0) then
+      begin
+        ShowMessage('negative number');
+        Exit;
+      end;
+
+      result := Power(powerLeftValue, powerRightValue);
+      Edit1.Text := FloatToStr(result);
+      text := FloatToStr(result);
+    end
+    else if powerHasLeftValue and (pendingOperation = 'в€љ') then
+    begin
+      powerRightValue := StrToFloat(text);
+
+      if (powerLeftValue < 0) and (Frac(powerRightValue) <> 0) then
+      begin
+        ShowMessage('negative number');
+        Exit;
+      end;
+
+      result := Power(powerLeftValue, 1/powerRightValue);
+      Edit1.Text := FloatToStr(result);
+      text := FloatToStr(result);
+    end
+    else
+    begin
+      b := StrToFloat(text);
+      case Answer of
+        '+': result := a + b;
+        '-': result := a - b;
+        '*': result := a * b;
+        '/':
+          if b = 0 then
+            ShowMessage('Division on zero')
+          else
+            result := a / b;
+      else
+        ShowMessage('Unknown operation');
+        Exit;
+      end;
+      Edit1.Text := FloatToStr(result);
+      text := FloatToStr(result);
+    end;
+
+    powerHasLeftValue := False;
+    pendingOperation := '';
+  except
+    on E: Exception do
+      ShowMessage('Error: ' + E.Message);
+  end;
 end;
 
 procedure TKalkulator.fiveClick(Sender: TObject);
@@ -177,7 +226,7 @@ Edit1.Text := Edit1.Text + '+';
 text := '';
 end;
 
-procedure TKalkulator.powerClick(Sender: TObject);
+procedure TKalkulator.powerrClick(Sender: TObject);
 begin
 if not powerHasLeftValue then
   begin
@@ -188,13 +237,13 @@ if not powerHasLeftValue then
       Edit1.Text := Edit1.Text + '^';
       text := '';
     except
-      ShowMessage('Некорректное число!');
+      ShowMessage('incorrect number');
       text := '';
     end;
   end
   else
   begin
-    ShowMessage('Операция уже задана!');
+    ShowMessage('operation started');
   end;
 end;
 
@@ -214,6 +263,27 @@ procedure TKalkulator.sixClick(Sender: TObject);
 begin
 Edit1.Text:=Edit1.Text+'6';
 text := text + '6';
+end;
+
+procedure TKalkulator.sqrtButtonClick(Sender: TObject);
+begin
+if not powerHasLeftValue then
+  begin
+    try
+      powerLeftValue := StrToFloat(text);
+      powerHasLeftValue := True;
+      pendingOperation := 'в€љ';
+      Edit1.Text := Edit1.Text + 'в€љ';
+      text := '';
+    except
+      ShowMessage('incorrect number');
+      text := '';
+    end;
+  end
+  else
+  begin
+    ShowMessage('operation started');
+  end;
 end;
 
 procedure TKalkulator.threeClick(Sender: TObject);

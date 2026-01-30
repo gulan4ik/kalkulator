@@ -181,21 +181,23 @@ object Kalkulator: TKalkulator
     TabOrder = 18
     OnClick = rndClick
   end
-  object Button4: TButton
+  object sqrtButton: TButton
     Left = 388
     Top = 48
     Width = 41
     Height = 41
-    Caption = 'Button1'
+    Caption = #8730
     TabOrder = 19
+    OnClick = sqrtButtonClick
   end
-  object Button5: TButton
+  object logarithmic: TButton
     Left = 388
     Top = 112
     Width = 41
     Height = 41
-    Caption = 'Button1'
+    Caption = 'log'
     TabOrder = 20
+    OnClick = logarithmicClick
   end
   object Button6: TButton
     Left = 388
